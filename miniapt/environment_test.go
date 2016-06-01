@@ -22,7 +22,7 @@ func TestGetDataDirPath_DefaultsToPWD(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	dir, err := GetDataDirPath(&getDataDirTestFlagger{})
+	dir, err := getDataDirPath(&getDataDirTestFlagger{})
 	if err != nil {
 		t.Fatal(err)
 	}
