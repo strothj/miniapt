@@ -4,6 +4,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"golang.org/x/crypto/openpgp"
+
 	"github.com/strothj/debrepo"
 )
 
@@ -24,6 +26,7 @@ type Environment struct {
 	ConfigDir   string
 	LoadSources func() debrepo.SourceList
 	SaveSources func(debrepo.SourceList) error
+	SaveKey     func(openpgp.EntityList) error
 }
 
 // EnvironmentFromContext returns an Environment configured using values passed
@@ -44,11 +47,15 @@ func EnvironmentFromContext(ctx StringFlagger) (*Environment, error) {
 		if err != nil {
 			return err
 		}
-		err = SaveSources(filepath.Join(env.ConfigDir, "sources.list"), sourceList)
+		return SaveSources(filepath.Join(env.ConfigDir, "sources.list"), sourceList)
+	}
+	env.SaveKey = func(entityList openpgp.EntityList) error {
+		keysPath := filepath.Join(env.ConfigDir, "keys")
+		err := os.MkdirAll(keysPath, 0755)
 		if err != nil {
 			return err
 		}
-		return nil
+		return SaveKey(keysPath, entityList)
 	}
 	return env, nil
 }

@@ -7,4 +7,5 @@ func ConfigureCommandLine(app *cli.App) {
 	addGlobalFlags(app)
 
 	addSourceCommand(app)
+	addKeyCommand(app)
 }
