@@ -19,8 +19,10 @@ func addSourceCommand(app *cli.App) {
 
 func addSourceAddCommand(parent *cli.Command) {
 	parent.Subcommands = append(parent.Subcommands, &cli.Command{
-		Name:   "add",
-		Usage:  "add APT repository",
+		Name:  "add",
+		Usage: "add APT repository",
+		Description: `Add an APT repository:
+	miniapt source add "deb http://ftp.debian.org/debian squeeze main contrib non-free"`,
 		Action: doSourceAdd,
 	})
 }
