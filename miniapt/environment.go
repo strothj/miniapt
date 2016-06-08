@@ -22,42 +22,47 @@ type StringFlagger interface {
 
 // Environment provides application services to the command line interface.
 type Environment struct {
-	DataDir          string
-	ConfigDir        string
-	LoadRepositories func() debrepo.RepositoryList
-	SaveRepositories func(debrepo.RepositoryList) error
-	SaveKey          func(openpgp.EntityList) error
+	ctx       StringFlagger
+	DataDir   string
+	ConfigDir string
 }
 
 // EnvironmentFromContext returns an Environment configured using values passed
 // to the command line interface.
 func EnvironmentFromContext(ctx StringFlagger) (*Environment, error) {
-	env := new(Environment)
 	dataDir, err := getDataDirPath(ctx)
 	if err != nil {
 		return nil, err
 	}
-	env.DataDir = dataDir
-	env.ConfigDir = filepath.Join(dataDir, "config")
-	env.LoadRepositories = func() debrepo.RepositoryList {
-		return LoadRepository(filepath.Join(env.ConfigDir, "sources.list"))
+	return &Environment{
+		ctx:       ctx,
+		DataDir:   dataDir,
+		ConfigDir: filepath.Join(dataDir, "config"),
+	}, nil
+}
+
+// LoadRepositories reads the list of repositories from the data directory.
+func (e *Environment) LoadRepositories() debrepo.RepositoryList {
+	return LoadRepository(filepath.Join(e.ConfigDir, "sources.list"))
+}
+
+// SaveRepositories saves the list of repositories to the data directory.
+func (e *Environment) SaveRepositories(repoList debrepo.RepositoryList) error {
+	err := os.MkdirAll(e.ConfigDir, 0755)
+	if err != nil {
+		return err
 	}
-	env.SaveRepositories = func(repoList debrepo.RepositoryList) error {
-		err := os.MkdirAll(env.ConfigDir, 0755)
-		if err != nil {
-			return err
-		}
-		return SaveRepositories(filepath.Join(env.ConfigDir, "sources.list"), repoList)
+	return SaveRepositories(filepath.Join(e.ConfigDir, "sources.list"), repoList)
+}
+
+// SaveKey saves an OpenPGP key to the data directory.
+func (e *Environment) SaveKey(entityList openpgp.EntityList) error {
+	keysPath := filepath.Join(e.ConfigDir, "keys")
+	err := os.MkdirAll(keysPath, 0755)
+	if err != nil {
+		return err
 	}
-	env.SaveKey = func(entityList openpgp.EntityList) error {
-		keysPath := filepath.Join(env.ConfigDir, "keys")
-		err := os.MkdirAll(keysPath, 0755)
-		if err != nil {
-			return err
-		}
-		return SaveKey(keysPath, entityList)
-	}
-	return env, nil
+	return SaveKey(keysPath, entityList)
 }
 
 func getDataDirPath(ctx StringFlagger) (string, error) {
