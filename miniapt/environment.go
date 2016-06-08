@@ -6,7 +6,7 @@ import (
 
 	"golang.org/x/crypto/openpgp"
 
-	"github.com/strothj/debrepo"
+	"github.com/strothj/go-debrepo/debrepo"
 )
 
 const (
@@ -22,11 +22,11 @@ type StringFlagger interface {
 
 // Environment provides application services to the command line interface.
 type Environment struct {
-	DataDir     string
-	ConfigDir   string
-	LoadSources func() debrepo.SourceList
-	SaveSources func(debrepo.SourceList) error
-	SaveKey     func(openpgp.EntityList) error
+	DataDir          string
+	ConfigDir        string
+	LoadRepositories func() debrepo.RepositoryList
+	SaveRepositories func(debrepo.RepositoryList) error
+	SaveKey          func(openpgp.EntityList) error
 }
 
 // EnvironmentFromContext returns an Environment configured using values passed
@@ -39,15 +39,15 @@ func EnvironmentFromContext(ctx StringFlagger) (*Environment, error) {
 	}
 	env.DataDir = dataDir
 	env.ConfigDir = filepath.Join(dataDir, "config")
-	env.LoadSources = func() debrepo.SourceList {
-		return LoadSources(filepath.Join(env.ConfigDir, "sources.list"))
+	env.LoadRepositories = func() debrepo.RepositoryList {
+		return LoadRepository(filepath.Join(env.ConfigDir, "sources.list"))
 	}
-	env.SaveSources = func(sourceList debrepo.SourceList) error {
+	env.SaveRepositories = func(repoList debrepo.RepositoryList) error {
 		err := os.MkdirAll(env.ConfigDir, 0755)
 		if err != nil {
 			return err
 		}
-		return SaveSources(filepath.Join(env.ConfigDir, "sources.list"), sourceList)
+		return SaveRepositories(filepath.Join(env.ConfigDir, "sources.list"), repoList)
 	}
 	env.SaveKey = func(entityList openpgp.EntityList) error {
 		keysPath := filepath.Join(env.ConfigDir, "keys")
