@@ -11,10 +11,13 @@ import (
 // LoadRepository reads a list of repositories from the specified file. Any line
 // not in the format
 // "deb http://ftp.debian.org/debian squeeze main contrib non-free" is ignored.
-func LoadRepository(repoListPath string) (repoList debrepo.RepositoryList) {
+// Returns a RepositoryList of length 0 if the file could not be read or the
+// file is empty.
+func LoadRepository(repoListPath string) debrepo.RepositoryList {
+	repoList := make(debrepo.RepositoryList, 0)
 	b, err := ioutil.ReadFile(repoListPath)
 	if err != nil {
-		return
+		return repoList
 	}
 	for _, l := range strings.Split(string(b), "\n") {
 		if len(l) > 0 {
@@ -24,7 +27,7 @@ func LoadRepository(repoListPath string) (repoList debrepo.RepositoryList) {
 			}
 		}
 	}
-	return
+	return repoList
 }
 
 // SaveRepositories saves a repository source list.
