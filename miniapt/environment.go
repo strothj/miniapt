@@ -13,6 +13,10 @@ const (
 	// DataDirFlagName is the command line flag for the application data
 	// directory.
 	DataDirFlagName = "datadir"
+
+	// ArchitectureFlagName is the command line flag for the architecture type
+	// of packages requested from package repositories.
+	ArchitectureFlagName = "arch"
 )
 
 // StringFlagger provides the string value of a command line flag.

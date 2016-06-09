@@ -6,6 +6,7 @@ import "gopkg.in/urfave/cli.v2"
 func ConfigureCommandLine(app *cli.App) {
 	addGlobalFlags(app)
 
-	addRepositoryCommand(app)
+	addListArchitecturesCommand(app)
 	addKeyCommand(app)
+	addRepositoryCommand(app)
 }
